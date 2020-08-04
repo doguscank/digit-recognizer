@@ -38,9 +38,9 @@ class Recognizer:
 		self.train_y = np.asarray([np.equal(y, self.classes).astype(int) for y in self.train_y])
 		self.train_X = [(self.train_set.values[:, 1:].reshape(self.nrows, 28, 28) / 255.0)]
 		self.train_X = np.stack((self.train_X, ) * 3, axis = -1)
-		self.test_X = self.train_X[0][:-1000]
+		self.test_X = self.train_X[0][-1000:]
 		self.train_X = self.train_X[0][:41000]
-		self.test_y = self.train_y[:-1000]
+		self.test_y = self.train_y[-1000:]
 		self.train_y = self.train_y[:41000]
 
 	def reshape_testset(self, nrows):
@@ -143,9 +143,9 @@ class Recognizer:
 if __name__ == '__main__':
 	recognizer = Recognizer()
 	recognizer.import_dataset(-1)
-
-	"""
 	recognizer.reshape_dataset()
+
+	"""	
 	recognizer.init_model()
 	recognizer.add_residual_block(10, (2, 2, 1), (2, 2, 1), ('valid', 'valid', 'same'), 2)
 	recognizer.add_residual_block(10, (2, 2, 1), (1, 1, 1), ('same', 'same', 'same'), 1)
@@ -168,9 +168,12 @@ if __name__ == '__main__':
 	
 	recognizer.init_model()
 	recognizer.model = tf.keras.models.load_model('./saved_models/model_2')
-	
 
-	
+	results = recognizer.model.evaluate(recognizer.test_X, recognizer.test_y, batch_size = 256)
+	print(results)
+
+
+	"""
 	recognizer.import_testset()
 	np.random.shuffle(recognizer.testset_X[0])
 
@@ -180,7 +183,7 @@ if __name__ == '__main__':
 		print("{}th image: {}".format(i, np.argmax(pred)))
 		cv2.imshow("test_img", img)
 		cv2.waitKey(0)
-	
+	"""
 	
 
 	"""
